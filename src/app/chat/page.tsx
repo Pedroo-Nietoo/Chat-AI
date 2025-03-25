@@ -7,17 +7,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useState, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react"; // Importando o hook useSession
+import { useSession } from "next-auth/react";
 
 export default function ChatPage() {
-  const { data: session, status } = useSession(); // Acessando dados da sessão
+  const { data: session, status } = useSession();
   const [messages, setMessages] = useState<{ id: string; role: string; content: string }[]>([]);
   const [input, setInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
-  // Função para scroll automático até o final
   useEffect(() => {
     const scrollToBottom = () => {
       if (scrollAreaRef.current) {
@@ -69,7 +68,6 @@ export default function ChatPage() {
     }
   };
 
-  // Se a sessão estiver carregando, mostrar um indicador de carregamento
   if (status === "loading") {
     return <Skeleton className="h-4 w-[300px]" />;
   }

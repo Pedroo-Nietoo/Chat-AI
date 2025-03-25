@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
-import { NextAuthOptions, Session } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
@@ -13,7 +12,7 @@ declare module "next-auth" {
   }
 }
 
-export const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
@@ -33,8 +32,7 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30,
     updateAge: 30,
   },
-};
+});
 
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };
+export const GET = handler;
+export const POST = handler;

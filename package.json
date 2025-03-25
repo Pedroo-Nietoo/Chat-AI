@@ -28,8 +28,7 @@
     "react-hook-form": "^7.54.2",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^2.5.3",
-    "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.24.2"
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/node": "^20",
