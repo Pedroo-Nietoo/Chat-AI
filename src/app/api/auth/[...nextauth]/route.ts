@@ -32,6 +32,7 @@ const handler = NextAuth({
     maxAge: 30,
     updateAge: 30,
   },
+  secret: process.env.NEXTAUTH_SECRET,
 });
 
 export const GET = handler;
