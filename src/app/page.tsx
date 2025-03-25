@@ -1,9 +1,22 @@
-import { Chat } from "@/components/Chat";
+"use client";
+
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className="flex min-h-screen bg-slate-50 items-center justify-center">
-     <Chat />
-    </div>
-  );
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (session) {
+      router.push("/chat");
+    } else {
+      router.push("/auth/access");
+    }
+  }, [session, status, router]);
+
+  return null;
 }

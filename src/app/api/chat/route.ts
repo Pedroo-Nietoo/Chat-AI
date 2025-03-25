@@ -1,23 +1,67 @@
-import { OpenAIStream, StreamingTextResponse } from 'ai';
-import {Configuration, OpenAIApi} from 'openai-edge';
+import { NextResponse } from 'next/server';
 
-const config = new Configuration({
- apiKey: process.env.OPENAI_API_KEY
-})
+const url = "https://api.forefront.ai/v1/chat/completions";
+const api_key = process.env.FOREFRONT_API_KEY;
 
-const openai = new OpenAIApi(config);
-
-export const runtime = 'edge'
+export const runtime = 'edge';
 
 export async function POST(req: Request) {
- const {messages} = await req.json()
+    const { messages } = await req.json();
 
- const response = await openai.createChatCompletion({
-   model: 'gpt-3.5-turbo',
-   stream: true,
-   messages
- })
+    const options = {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json',
+            authorization: `Bearer ${api_key}`
+        },
+        body: JSON.stringify({
+            model: "alpindale/Mistral-7B-v0.2-hf",
+            messages,
+            roles: [{ role: "developer", content: "Provide resumed responses to answer quickly." }],
+            max_tokens: 512,
+            temperature: 0.5,
+        })
+    };
 
- const stream = OpenAIStream(response)
- return new StreamingTextResponse(stream)
+    try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        if (!data.choices || data.choices.length === 0) {
+            return new NextResponse(JSON.stringify({ error: "Nenhuma resposta da IA" }), { status: 500 });
+        }
+
+        let content = data.choices[0]?.message?.content;
+        content = content.replace(/<\|im_end\|>\s*<\|im_start\|>/g, "").trim();
+
+        return new NextResponse(JSON.stringify({ content }), { status: 200 });
+    } catch (error) {
+        console.error("Erro ao processar a solicitação:", error);
+        return new NextResponse(JSON.stringify({ error: "Erro interno no servidor" }), { status: 500 });
+    }
+}
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const username = searchParams.get('username');
+
+  if (!username) {
+    return new NextResponse(JSON.stringify({ error: "O parâmetro 'username' é obrigatório" }), { status: 400 });
+  }
+
+  const githubUrl = `https://api.github.com/users/${username}`;
+
+  try {
+    const response = await fetch(githubUrl);
+
+    if (!response.ok) {
+      return new NextResponse(JSON.stringify({ error: "Usuário não encontrado no GitHub" }), { status: 404 });
+    }
+
+    const userData = await response.json();
+    return new NextResponse(JSON.stringify(userData), { status: 200 });
+  } catch (error) {
+    console.error("Erro ao buscar dados do GitHub:", error);
+    return new NextResponse(JSON.stringify({ error: "Erro interno no servidor" }), { status: 500 });
+  }
 }
